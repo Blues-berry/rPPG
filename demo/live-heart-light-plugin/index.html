@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>直播心率补光插件</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23111315'/%3E%3Cpath d='M9 18c2-6 5-7 7-2 2-5 5-4 7 2' fill='none' stroke='%23ff6b83' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M8 24h16' stroke='%2355d2b0' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="plugin-shell">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">OBS + B站 Phase 1</p>
+          <h1>直播心率补光插件</h1>
+          <p class="subtitle">Python 服务常驻采集摄像头，持续送入 Open-rppg；控制台、摄像头画面和 Overlay 只是订阅结果，切屏不影响监测。</p>
+        </div>
+        <div class="hero-actions">
+          <a class="link-button" href="camera.html" target="_blank" rel="noreferrer">打开摄像头源</a>
+          <a class="link-button" href="overlay.html" target="_blank" rel="noreferrer">打开 Overlay</a>
+          <button id="startBtn" class="primary" type="button">启动后端采集</button>
+          <button id="stopBtn" class="danger" type="button">停止采集</button>
+        </div>
+      </header>
+
+      <section class="grid">
+        <div class="camera-card">
+          <div class="card-head">
+            <div>
+              <h2>后端摄像头采集</h2>
+              <p id="captureHint">服务端会独立打开摄像头并持续推理；这个页面关闭后采集仍会继续。</p>
+            </div>
+            <span id="captureState" class="state-pill waiting">WAITING</span>
+          </div>
+
+          <div class="video-stage">
+            <img id="cameraFeed" alt="Camera source preview" src="/api/capture/preview.mjpg" />
+            <div id="roiLabel" class="roi-label">SERVER CAMERA</div>
+          </div>
+
+          <div class="controls">
+            <button id="cameraSourceBtn" type="button">复制摄像头源地址</button>
+            <button id="resetBtn" type="button">重置模型窗口</button>
+            <button id="copyOverlayBtn" type="button">复制 Overlay 地址</button>
+          </div>
+        </div>
+
+        <aside class="status-column">
+          <section class="heart-card">
+            <div class="heart-orb" id="heartOrb">
+              <span id="bpmValue">--</span>
+              <small>BPM</small>
+            </div>
+            <div>
+              <h2 id="heartTitle">等待采集</h2>
+              <p id="heartDescription">启动后端采集后，模型会先积累稳定 BVP/SQI 窗口。</p>
+              <div class="mini-stats">
+                <div>
+                  <span>置信度</span>
+                  <strong id="confidenceText">0%</strong>
+                </div>
+                <div>
+                  <span>窗口</span>
+                  <strong id="windowText">0s</strong>
+                </div>
+                <div>
+                  <span>追踪</span>
+                  <strong id="trackerText">后端</strong>
+                </div>
+                <div>
+                  <span>模型</span>
+                  <strong id="modelText">检测中</strong>
+                </div>
+                <div>
+                  <span>输出</span>
+                  <strong id="outputText">锁定</strong>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="perf-card">
+            <div class="card-head compact">
+              <div>
+                <h2>链路性能</h2>
+                <p>统计服务端采集、模型输入和直播输出状态；不依赖当前网页是否在前台。</p>
+              </div>
+            </div>
+            <div class="perf-grid">
+              <div>
+                <span>采集输入</span>
+                <strong id="cameraFpsText">--</strong>
+              </div>
+              <div>
+                <span>采集耗时</span>
+                <strong id="detectMsText">--</strong>
+              </div>
+              <div>
+                <span>服务帧数</span>
+                <strong id="cropMsText">--</strong>
+              </div>
+              <div>
+                <span>输出原因</span>
+                <strong id="requestMsText">--</strong>
+              </div>
+              <div>
+                <span>模型输入</span>
+                <strong id="modelInputFpsText">--</strong>
+              </div>
+              <div>
+                <span>模型更新</span>
+                <strong id="modelUpdateMsText">--</strong>
+              </div>
+              <div>
+                <span>HR 计算</span>
+                <strong id="modelMetricMsText">--</strong>
+              </div>
+              <div>
+                <span>无人脸/丢帧</span>
+                <strong id="dropText">0/0</strong>
+              </div>
+            </div>
+          </section>
+
+          <section class="light-card">
+            <div class="card-head compact">
+              <div>
+                <h2>补光策略</h2>
+                <p>测量时锁定光源，避免灯光闪烁污染 rPPG 信号。</p>
+              </div>
+            </div>
+            <label>
+              亮度
+              <input id="brightnessInput" type="range" min="20" max="100" value="72" />
+            </label>
+            <label>
+              色温
+              <input id="temperatureInput" type="range" min="2700" max="6500" value="4800" />
+            </label>
+            <label class="toggle-row">
+              <input id="pulseToggle" type="checkbox" checked />
+              <span>Overlay 跟随心跳轻微脉动</span>
+            </label>
+            <div id="lightAdvice" class="light-advice">建议：先保持柔和稳定补光，避免自动曝光剧烈变化。</div>
+          </section>
+        </aside>
+
+        <section class="wave-card">
+          <div class="card-head compact">
+            <div>
+              <h2>直播输出窗口</h2>
+              <p>曲线展示最近模型置信度和 BPM 趋势；直播 Overlay 只在 SQI 达标时输出。</p>
+            </div>
+          </div>
+          <canvas id="waveCanvas" width="1280" height="220"></canvas>
+          <div class="quality-grid">
+            <div>
+              <span>采集稳定</span>
+              <meter id="brightnessMeter" min="0" max="100" value="0"></meter>
+              <strong id="brightnessText">0%</strong>
+            </div>
+            <div>
+              <span>人脸状态</span>
+              <meter id="motionMeter" min="0" max="100" value="0"></meter>
+              <strong id="motionText">0%</strong>
+            </div>
+            <div>
+              <span>SQI</span>
+              <meter id="peakMeter" min="0" max="100" value="0"></meter>
+              <strong id="peakText">0%</strong>
+            </div>
+          </div>
+        </section>
+
+        <section class="overlay-card">
+          <div class="card-head compact">
+            <div>
+              <h2>直播 Overlay 预览</h2>
+              <p>OBS 中添加 `camera.html` 作为摄像头画面，添加 `overlay.html` 作为心率 Overlay。</p>
+            </div>
+          </div>
+          <iframe id="overlayPreview" title="Overlay preview" src="overlay.html?preview=1"></iframe>
+        </section>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
