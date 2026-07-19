@@ -1,0 +1,138 @@
+.agent-panel {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  background: var(--panel-3);
+}
+
+.agent-status-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.agent-status-grid div,
+.agent-subtitle-preview {
+  display: grid;
+  gap: 4px;
+  padding: 10px;
+  border: 1px solid var(--line-soft);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.agent-status-grid span,
+.agent-input-label span,
+.agent-log {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 850;
+}
+
+.agent-status-grid strong {
+  min-width: 0;
+  color: var(--text);
+  font-size: 0.9rem;
+  line-height: 1.25;
+  word-break: break-word;
+}
+
+#agentSubtitleText {
+  color: #ddfbf1;
+}
+
+.agent-messages {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  min-height: 136px;
+  max-height: 240px;
+  overflow: auto;
+  padding: 8px;
+  border: 1px solid var(--line-soft);
+  border-radius: 8px;
+  background: #11161a;
+}
+
+.agent-message {
+  display: grid;
+  gap: 4px;
+  width: 92%;
+  padding: 8px 9px;
+  border: 1px solid var(--line-soft);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.agent-message.user {
+  justify-self: end;
+  border-color: rgba(116, 169, 255, 0.36);
+  background: rgba(116, 169, 255, 0.1);
+}
+
+.agent-message.assistant {
+  justify-self: start;
+  border-color: rgba(85, 210, 176, 0.32);
+  background: rgba(85, 210, 176, 0.08);
+}
+
+.agent-message.empty {
+  width: 100%;
+  color: var(--muted);
+}
+
+.agent-message span {
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 900;
+}
+
+.agent-message p {
+  color: var(--text);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.agent-input-label {
+  display: grid;
+  gap: 6px;
+}
+
+.agent-input-label textarea {
+  width: 100%;
+  min-height: 86px;
+  resize: vertical;
+  padding: 9px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--text);
+  line-height: 1.45;
+}
+
+.agent-input-label textarea:focus {
+  outline: 2px solid rgba(85, 210, 176, 0.28);
+  border-color: rgba(85, 210, 176, 0.72);
+}
+
+.agent-actions button {
+  flex: 1 1 120px;
+}
+
+.agent-error {
+  min-height: 1.1rem;
+  color: #fff0c8;
+  font-size: 0.76rem;
+  line-height: 1.4;
+}
+
+.agent-log {
+  overflow-wrap: anywhere;
+  line-height: 1.4;
+}
+
+.agent-log code {
+  color: #ddfbf1;
+  font-family: "Cascadia Mono", Consolas, monospace;
+font-size: 0.72rem;
+}
